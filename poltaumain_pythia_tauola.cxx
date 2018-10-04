@@ -20,6 +20,7 @@
 #include "UserCodes/TauDecaysHelper.h"
 #include "UserCodes/TauPolInterface.h"
 #include "UserCodes/PolarimetricA1.h"
+#include "UserCodes/TauHelper.h"
 #include "TLorentzVector.h"
 #include "TComplex.h"
 #include "TMatrixT.h"
@@ -138,7 +139,7 @@ void redMinus(TauolaParticle *minus) // this is JAK1
 
    for(unsigned int dec=1; dec <23; dec++){
       double br =0.0; 
-      if(dec ==2|| dec ==3|| dec ==4|| dec ==5) br=0.25;
+      if(  dec ==2 ||  dec ==3 ||   dec ==4 ||  dec ==5) br=0.25;
       Tauola::setTauBr(dec, br);
    }
 
@@ -162,7 +163,7 @@ void redPlus(TauolaParticle *plus) // this is JAK2
   // can be called here 
   for(unsigned int dec=1; dec <23; dec++){
      double br =0.0;
-      if(dec ==2|| dec ==3|| dec ==4|| dec ==5) br=0.25;
+      if(  dec ==2 ||  dec ==3 ||   dec ==4 ||  dec ==5) br=0.25;
      Tauola::setTauBr(dec, br);
    }
 }
@@ -295,16 +296,34 @@ int main(int argc,char **argv){
  TH1F *omega_a1p_minus= new TH1F("omega_a1p_minus","#omega_{a1}^{-}",50,-1.1,1.1);
 
 
-
  TH1F *omegabar_a1_plus= new TH1F("omegabar_a1_plus","#bar{#omega}_{a1}^{+}",50,-1.1,1.1);
  TH1F *omegabar_a1_minus= new TH1F("omegabar_a1_minus","#bar{#omega}_{a1}^{-}",50,-1.1,1.1);
+
+
+ TH1F *omega_beta_gamma_a1_plus= new TH1F("omega_beta_gamma_a1_plus","#omega(#beta,#gamma)_{a1}^{+}",50,-1.1,1.1);
+ TH1F *omega_beta_gamma_a1_minus= new TH1F("omega_beta_gamma_a1_minus","#omega(#beta, #gamma)_{a1}^{-}",50,-1.1,1.1);
+
  
  TH1F *TRFomegabar_a1_plus= new TH1F("TRFomegabar_a1_plus","TRF #omega_{a1}^{+}",50,-1.1,1.1);
  TH1F *TRFomegabar_a1_minus= new TH1F("TRFomegabar_a1_minus","TRF #omega_{a1}^{-}",50,-1.1,1.1);
 
+ TH1F *TRFomegabar_a1_integrated_plus= new TH1F("TRFomegabar_integrated_a1_plus","TRF #omega_{a1}^{+}",50,-1.1,1.1);
+ TH1F *TRFomegabar_a1_integrated_minus= new TH1F("TRFomegabar_integrated_a1_minus","TRF #omega_{a1}^{-}",50,-1.1,1.1);
+
+
+
+
   TH1F *TRFomegabar_a1scalar_plus= new TH1F("TRFomegabar_a1scalar_plus","TRF scalar #omega a1",50,-1.1,1.1);
   TH1F *TRFomegabar_a1scalar_minus= new TH1F("TRFomegabar_a1scalar_minus","TRF scalar  #omega a1",50,-1.1,1.1);
  
+
+
+  TH1F *TRFcosbeta_a1_plus= new TH1F("TRFcosbeta_a1_plus","TRF cos#beta a1",50,-1.1,1.1);
+  TH1F *TRFcosbeta_a1_minus= new TH1F("TRFcosbeta_a1_minus","TRF cos#beta   a1",50,-1.1,1.1);
+
+  TH1F *TRFcos2gamma_a1_plus= new TH1F("TRFcos2gamma_a1_plus","TRF cos2#gamma a1",50,-0.2,0.2);
+  TH1F *TRFcos2gamma_a1_minus= new TH1F("TRFcos2gamma_a1_minus","TRF cos2#gamma   a1",50,-0.2,0.2);
+
 
  TH2F *cosbetacostheta_plus= new TH2F("cosbetacostheta_plus","cos#beta  cos#theta   {a1}^{+}",50,-1.1,1.1,50,-1.1,1.1);
  TH2F *cosbetacostheta_minus= new TH2F("cosbetacostheta_minus","cos#beta  cos#theta  {a1}^{-}",50,-1.1,1.1,50,-1.1,1.1);
@@ -348,6 +367,20 @@ int main(int argc,char **argv){
 
  TH1F *a1_mcos2gamma_plus= new TH1F("a1_mcos2gamma_plus"," <cos2#gamma>^{+}",50,-0.5,0.5);
  TH1F *a1_mcos2gamma_minus= new TH1F("a1_mcos2gamma_minus"," <cos2#gamma>^{-}",50,-0.5,0.5);
+
+
+ TH1F *mass_a1a1_plus= new TH1F("mass_a1a1_plus","M_{}^{+}",60,0,120);
+ TH1F *mass_a1a1_minus= new TH1F("mass_a1a1_minus","M_{}^{-}",60,0,120);
+
+ TH1F *mass_rhopi_plus= new TH1F("mass_rhopi_plus","M_{}^{+}",60,0,120);
+ TH1F *mass_rhopi_minus= new TH1F("mass_rhopi_minus","M_{}^{-}",60,0,120);
+
+ TH1F *mass_mumu_plus= new TH1F("mass_mumu_plus","M_{}^{+}",60,0,120);
+ TH1F *mass_mumu_minus= new TH1F("mass_mumu_minus","M_{}^{-}",60,0,120);
+
+ TH1F *mass_mua1_plus= new TH1F("mass_mua1_plus","M_{}^{+}",60,0,120);
+ TH1F *mass_mua1_minus= new TH1F("mass_mua1_minus","M_{}^{-}",60,0,120);
+
 
 
 
@@ -964,7 +997,7 @@ TH1F *hmag= new TH1F("hmag","hmag",40,0.5,1.5);
 
 
      }
-
+     //     std::cout<<" JAK"
     
     if(JAK2==5 && SubJAK2==51){
       vector<TLorentzVector> particles;
@@ -986,13 +1019,36 @@ TH1F *hmag= new TH1F("hmag","hmag",40,0.5,1.5);
       tauandprod2=particles;
       Polarimetr.Configure(particles, taucharge);
       A2.Configure(particles,"a1", taucharge);
-      
+
+      TRFcosbeta_a1_plus->Fill(a1h.cosbetaLF(),HelWeightPlus);
+      TRFcosbeta_a1_minus->Fill(a1h.cosbetaLF(),HelWeightMinus);   
+
+      omega_beta_gamma_a1_plus->Fill(a1h.getA1omegaIntegratedOverTheta(),HelWeightPlus);
+      omega_beta_gamma_a1_minus->Fill(a1h.getA1omegaIntegratedOverTheta(),HelWeightMinus);   
+      TauHelper TauHelper;
+
+      TauHelper.Configure(a1ospi,a1ss1pi,a1ss2pi,tau2,tau1);
+      //      std::cout<<" psi "<< TauHelper.CosPsi() << "  psi1   "<<  TauHelper.CosPsi1() <<std::endl;
+      //      std::cout<<" ---------------  "<<std::endl;
+      TRFcos2gamma_a1_plus->Fill(a1h.cosgammaLF(),HelWeightPlus);
+      TRFcos2gamma_a1_minus->Fill(a1h.cosgammaLF(),HelWeightMinus);  
+
+      //      std::cout<<HelWeightMinus<<"  "<<  HelWeightPlus <<std::endl;
+      TRFomegabar_a1_minus->Fill(TauHelper.GetOmegaA1(),HelWeightMinus);   
+      TRFomegabar_a1_plus->Fill(TauHelper.GetOmegaA1(),HelWeightPlus);
+
+	//if(TauHelper.GetOmegaA1() <1 && TauHelper.GetOmegaA1() > -1 ){
+	  TRFomegabar_a1_integrated_minus->Fill(TauHelper.getA1omegaIntegratedOverTheta(),HelWeightMinus);  
+	  TRFomegabar_a1_integrated_plus->Fill(TauHelper.getA1omegaIntegratedOverTheta(),HelWeightPlus);
+	  //	}
+      // std::cout<<" TauHelper.GetOmegaA1()  "<<  TauHelper.GetOmegaA1() <<std::endl;
+
       if(ApplyCut){
 	if(passed2){
 	  
 	  TRFomegabar_a1_minus->Fill(a1h.TRF_vgetA1omega(),HelWeightMinus);                                      TRFomegabar_a1_plus->Fill(a1h.TRF_vgetA1omega(),HelWeightPlus);
 	  TRFomegabar_a1scalar_minus->Fill(a1h.TRF_vgetA1omega("scalar"),HelWeightMinus);                  TRFomegabar_a1scalar_plus->Fill(a1h.TRF_vgetA1omega("scalar"),HelWeightPlus);
-	  cosbetacostheta_minus->Fill(a1h.cosbeta(),a1h.costhetaLF(),HelWeightMinus);                              cosbetacostheta_plus->Fill(a1h.cosbeta(),a1h.costhetaLF(),HelWeightPlus);
+	  cosbetacostheta_minus->Fill(a1h.cosbetaLF(),a1h.costhetaLF(),HelWeightMinus);                              cosbetacostheta_plus->Fill(a1h.cosbetaLF(),a1h.costhetaLF(),HelWeightPlus);
 	  TRFcosbetacostheta_minus->Fill(a1h.TRF_cosbeta(),a1h.costhetaLF(),HelWeightMinus);                  TRFcosbetacostheta_plus->Fill(a1h.TRF_cosbeta(),a1h.costhetaLF(),HelWeightPlus);
 	  
 	  s1->Fill((a1ospi +a1ss1pi).M() );
@@ -1009,11 +1065,24 @@ TH1F *hmag= new TH1F("hmag","hmag",40,0.5,1.5);
 	  if(HelWeightMinus==1)     a1_mcos2gamma_minus->Fill(a1h.getMoment(a1h.costhetaLF(),"c2g", -1));                 
 	}
       }else{
-	TRFomegabar_a1_minus->Fill(a1h.TRF_vgetA1omega(),HelWeightMinus);                                      TRFomegabar_a1_plus->Fill(a1h.TRF_vgetA1omega(),HelWeightPlus);
-	TRFomegabar_a1scalar_minus->Fill(a1h.TRF_vgetA1omega("scalar"),HelWeightMinus);                  TRFomegabar_a1scalar_plus->Fill(a1h.TRF_vgetA1omega("scalar"),HelWeightPlus);
-	cosbetacostheta_minus->Fill(a1h.cosbeta(),a1h.costhetaLF(),HelWeightMinus);                              cosbetacostheta_plus->Fill(a1h.cosbeta(),a1h.costhetaLF(),HelWeightPlus);
-	TRFcosbetacostheta_minus->Fill(a1h.TRF_cosbeta(),a1h.costhetaLF(),HelWeightMinus);                  TRFcosbetacostheta_plus->Fill(a1h.TRF_cosbeta(),a1h.costhetaLF(),HelWeightPlus);
 	
+	TRFomegabar_a1scalar_minus->Fill(a1h.TRF_vgetA1omega("scalar"),HelWeightMinus);                  TRFomegabar_a1scalar_plus->Fill(a1h.TRF_vgetA1omega("scalar"),HelWeightPlus);
+	cosbetacostheta_minus->Fill(a1h.cosbetaLF(),a1h.costhetaLF(),HelWeightMinus);                              cosbetacostheta_plus->Fill(a1h.cosbetaLF(),a1h.costhetaLF(),HelWeightPlus);
+	TRFcosbetacostheta_minus->Fill(a1h.TRF_cosbeta(),a1h.costhetaLF(),HelWeightMinus);                  TRFcosbetacostheta_plus->Fill(a1h.TRF_cosbeta(),a1h.costhetaLF(),HelWeightPlus);
+
+
+      
+  // 	  TH1F *TRFcosbeta_a1_plus= new TH1F("TRFcosbeta_a1_plus","TRF cos#beta a1",50,-1.1,1.1);
+  // TH1F *TRFcosbeta_a1_minus= new TH1F("TRFcosbeta_a1_minus","TRF cos#beta   a1",50,-1.1,1.1);
+
+  // TH1F *TRFcos2gamma_a1_plus= new TH1F("TRFcos2gamma_a1_plus","TRF cos2#gamma a1",50,-1.1,1.1);
+  // TH1F *TRFcos2gamma_a1_minus= new TH1F("TRFcos2gamma_a1_minus","TRF cos2#gamma   a1",50,-1.1,1.1);
+
+
+
+    
+
+
 	s1->Fill((a1ospi +a1ss1pi).M() );
 	s2->Fill((a1ospi +a1ss2pi).M() );
 	qq->Fill((a1ospi+a1ss1pi+a1ss2pi).M());
@@ -1026,8 +1095,8 @@ TH1F *hmag= new TH1F("hmag","hmag",40,0.5,1.5);
 	if(HelWeightPlus==1)      hel =  1;
 	if(HelWeightPlus==1)      a1_mcos2gamma_plus->Fill(a1h.getMoment(a1h.costhetaLF(),"c2g", 1));                 
 	if(HelWeightMinus==1)     a1_mcos2gamma_minus->Fill(a1h.getMoment(a1h.costhetaLF(),"c2g", -1));                 
-      }
     }
+  }
     
     //----------------------------- pairs -----------------
 
@@ -1117,10 +1186,11 @@ TH1F *hmag= new TH1F("hmag","hmag",40,0.5,1.5);
 	   TauPolPiRho.ConfigurePair(tauandprod1,"pion",tauandprod2,"rho");
 	   
 	   omega_pirho_plus->Fill(TauPolPiRho.getCombOmegaBar(),HelWeightPlus);
-	   omega_pirho_minus->Fill(TauPolPiRho.getCombOmegaBar(),HelWeightMinus);       
+	   omega_pirho_minus->Fill(TauPolPiRho.getCombOmegaBar(),HelWeightMinus); 
+      	    mass_rhopi_plus->Fill((tauandprod1.at(1) +	tauandprod2.at(1) + 	tauandprod2.at(2) ).M(),HelWeightPlus);
+	    mass_rhopi_minus->Fill((tauandprod1.at(1) +	tauandprod2.at(1) + 	tauandprod2.at(2) ).M(),HelWeightMinus);      
          }
       }
-      
       if(JAK1 ==3 && JAK2 == 5 &&   SubJAK2==51){
 	if(Pi1.isConfigured() && A2.isConfigured()){
 	  TauPolPiA1.ConfigurePair(tauandprod1,"pion",tauandprod2,"a1",taucharge2);
@@ -1129,15 +1199,36 @@ TH1F *hmag= new TH1F("hmag","hmag",40,0.5,1.5);
 	}
        }
       
-      
+        if( JAK1 == 5 &&   SubJAK1==51 && JAK2 == 5 &&   SubJAK2==51){
+	  if(A1.isConfigured() && A2.isConfigured()){
+	  TauPolPiA1.ConfigurePair(tauandprod1,"a1",tauandprod2,"a1",taucharge1,taucharge2);
+	  mass_a1a1_plus->Fill((tauandprod1.at(1) + 	tauandprod1.at(2) + 	tauandprod1.at(3) +	tauandprod2.at(1) + 	tauandprod2.at(2) + 	tauandprod2.at(3)).M(),HelWeightPlus);
+	  mass_a1a1_minus->Fill((tauandprod1.at(1) + 	tauandprod1.at(2) + 	tauandprod1.at(3) +	tauandprod2.at(1) + 	tauandprod2.at(2) + 	tauandprod2.at(3)).M(),HelWeightMinus);     
+	   
+	}
+       }
+	//	(tauandprod1.at(1) + 	tauandprod1.at(2) + 	tauandprod1.at(3) +	tauandprod2.at(1) + 	tauandprod2.at(2) + 	tauandprod2.at(3)).M()
+    
       if(JAK1 ==2 && JAK2 == 5 &&   SubJAK2==51){
 	if(Mu1.isConfigured() && A2.isConfigured()){
 	  TauPolMuA1.ConfigurePair(tauandprod1,"lepton",tauandprod2,"a1",taucharge2);
 	  omega_a1mu_plus->Fill(TauPolMuA1.getCombOmegaBar(),HelWeightPlus);
-	   omega_a1mu_minus->Fill(TauPolMuA1.getCombOmegaBar(),HelWeightMinus);       
+	  omega_a1mu_minus->Fill(TauPolMuA1.getCombOmegaBar(),HelWeightMinus); 
+	  mass_mua1_plus->Fill((tauandprod1.at(1) +	tauandprod2.at(1) + 	tauandprod2.at(2)+ 	tauandprod2.at(3) ).M(),HelWeightPlus);
+	  mass_mua1_minus->Fill((tauandprod1.at(1) +	tauandprod2.at(1) + 	tauandprod2.at(2)+ 	tauandprod2.at(3) ).M(),HelWeightMinus);      
+	   
+	}
+      }
+       if(JAK1 ==2 && JAK2 ==2){
+	if(Mu1.isConfigured() && Mu2.isConfigured()){
+	 
+	  mass_mumu_plus->Fill((tauandprod1.at(1) +	tauandprod2.at(1) ).M(),HelWeightPlus);
+	  mass_mumu_minus->Fill((tauandprod1.at(1) +	tauandprod2.at(1) ).M(),HelWeightMinus);      
+	   
 	}
       }
       
+     
 
       if(JAK1 ==4 && JAK2 == 4){
 	if(Rho1.isConfigured() && Rho2.isConfigured()){

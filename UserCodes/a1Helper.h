@@ -60,6 +60,7 @@ class a1Helper {
   double sinthetaLF();
 
   double cosbetaLF();
+  double sinbetaLF();
   double cospsiLF();
   double sinpsiLF();
   double ultrarel_cospsiLF();
@@ -71,6 +72,12 @@ class a1Helper {
   double sin2gamma();
   double singamma();
   double cosgamma();
+
+
+  double cos2gammaLF();
+  double sin2gammaLF();
+
+
   double cosbeta();
   double sinbeta();
   //====================
@@ -87,6 +94,7 @@ class a1Helper {
 
  double getA1omega();
  double getA1omegaBar();
+  std::vector<float> Sin2Cos2Gamma(TLorentzVector p1,TLorentzVector p2, TLorentzVector p3);
 
 //========== TRF  =======
  double TRF_vgetf(TString type="");
@@ -156,6 +164,20 @@ class a1Helper {
   float  GammaRhoPrime(float QQ);
 
 
+  double I_squared_cospsi(double limit);
+  double Integral_squared_cospsi();
+  double I_cospsi(double limit);
+  double Integral_cospsi();
+  double I_squared_cospsi_costheta(double limit);
+  double Integral_squared_cospsi_costheta();
+  double I_cospsi_costheta(double limit);
+  double Integral_cospsi_costheta();
+  double I_sinpsi_sintheta(double limit);
+  double Integral_sinpsi_sintheta();
+  double I_sin2psi_sintheta(double limit);
+  double Integral_sin2psi_sintheta();
+
+  double getA1omegaIntegratedOverTheta();
 
   double GetOmegaA1();
 

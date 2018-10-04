@@ -477,6 +477,7 @@ PolarimetricA1::PVC(){
    TComplex F3 = TComplex(COEF3)*F3PI(3,a1.M2(),s3,s1);
 
 
+
    std::vector<TComplex> HADCUR;
    std::vector<TComplex> HADCURC;
 

@@ -50,12 +50,24 @@ a1Helper::Setup(vector<TLorentzVector> TauA1andProd, TLorentzVector ReferenceFra
    LFa1LV = LFosPionLV+LFss1pionLV+LFss2pionLV;
    LFtauLV = TauA1andProd.at(0);
    LFQ= LFa1LV.M();
+   //---------------- this is in a1 rf
+   // _osPionLV   = TauA1andProd_RF.at(1);
+   // _ss1pionLV =TauA1andProd_RF.at(2);
+   // _ss2pionLV =TauA1andProd_RF.at(3);
+   // _a1LV = _osPionLV+_ss1pionLV+_ss2pionLV;
+   // _tauLV = TauA1andProd_RF.at(0);
 
-   _osPionLV   = TauA1andProd_RF.at(1);
-   _ss1pionLV =TauA1andProd_RF.at(2);
-   _ss2pionLV =TauA1andProd_RF.at(3);
+
+   //---------------- this is in lab rf
+   _osPionLV   = TauA1andProd.at(1);
+   _ss1pionLV =TauA1andProd.at(2);
+   _ss2pionLV =TauA1andProd.at(3);
    _a1LV = _osPionLV+_ss1pionLV+_ss2pionLV;
-   _tauLV = TauA1andProd_RF.at(0);
+   _tauLV = TauA1andProd.at(0);
+
+
+
+
    _s12 = _ss1pionLV +_ss2pionLV;
    _s13 = _ss1pionLV + _osPionLV;
    _s23 = _ss2pionLV + _osPionLV;
@@ -406,13 +418,26 @@ a1Helper::singammaLF(){
 }
 double
 a1Helper::cos2gamma(){
-   return singamma()*singamma()   -     cosgamma()*cosgamma();
+   return     cosgamma()*cosgamma()-singamma()*singamma();
 }
 
 double
 a1Helper::sin2gamma(){
   return 2*singamma()*cosgamma();
 }
+
+double
+a1Helper::cos2gammaLF(){
+   return     cosgammaLF()*cosgammaLF()-singammaLF()*singammaLF() ;
+}
+
+double
+a1Helper::sin2gammaLF(){
+  return 2*singammaLF()*cosgammaLF();
+}
+
+
+
 double 
 a1Helper::cospsiLF(){
   double QQ = LFQ*LFQ;
@@ -453,7 +478,7 @@ a1Helper::cosbetaLF(){
   double QQ = LFQ*LFQ;
   double B1 = (pow(LFss1pionLV.E()*LFa1LV.E()   - Scalar(LFss1pionLV,LFa1LV),2 ) - QQ*mpi*mpi)/QQ;
   double B2 = (pow(LFss2pionLV.E()*LFa1LV.E()   - Scalar(LFss2pionLV,LFa1LV),2 ) - QQ*mpi*mpi)/QQ;
-  double B3 = (pow(LFosPionLV.E()*LFa1LV.E()   -   Scalar(LFosPionLV,LFa1LV),2 ) - QQ*mpi*mpi)/QQ;
+  double B3 = (pow(LFosPionLV.E()*LFa1LV.E()    - Scalar(LFosPionLV,LFa1LV),2 )  - QQ*mpi*mpi)/QQ;
 
   TVector3 ss1pionVect = LFss1pionLV.Vect();
   TVector3 ss2pionVect = LFss2pionLV.Vect();
@@ -467,6 +492,15 @@ a1Helper::cosbetaLF(){
   if(T==0 || LFa1LV.P()==0){if(debug){std::cout<<" Warning!  Can not compute cosbetaLF, denominator =0; return 0; "<<std::endl;} return 0;}
   return ospionVect.Dot(ss1pionVect.Cross(ss2pionVect)) /LFa1LV.P()/T;
 }
+
+
+double 
+a1Helper::sinbetaLF(){
+  if(  cosbetaLF() > 1 ) return 0;
+  return sqrt(1 - cosbetaLF()*cosbetaLF());
+  //  return ospionVect.Dot(ss1pionVect.Cross(ss2pionVect)) /LFa1LV.P()/T;
+}
+
 
 double
 a1Helper::VV1(){ //  this is -V1^{2}
@@ -803,20 +837,312 @@ double a1Helper::getA1omegaBar(){
   if(getf()==0){ if(debug){std::cout<<"Warning!  Can not return omega; f(0)=0; return -5;  "<<std::endl;} return -5;}
   return getg()/getf();
 }
+
+
+
+//------------------
+
+std::vector<float> 
+a1Helper::Sin2Cos2Gamma(TLorentzVector p1,TLorentzVector p2, TLorentzVector p3){
+
+  std::vector<float> sin2cos2;
+  float mpi  = 0.139;
+  TLorentzVector a1 = p1+p2+p3;
+  float QQ = a1.E()*a1.E() - a1.P()*a1.P();
+
+  float B1 = (pow(p1.E()*a1.E()   - Scalar(p1,a1),2 ) - QQ*mpi*mpi)/QQ;
+  float B2 = (pow(p2.E()*a1.E()   - Scalar(p2,a1),2 ) - QQ*mpi*mpi)/QQ;
+  float B3 = (pow(p3.E()*a1.E()   - Scalar(p3,a1),2 ) - QQ*mpi*mpi)/QQ;
+
+  float T = 0.5*sqrt(-lambda(B1,B2,B3));
+
+  float A1=(a1.E()*Scalar(a1,p1) - p1.E()*a1.P()*a1.P())/QQ;
+  float A2=(a1.E()*Scalar(a1,p2) - p2.E()*a1.P()*a1.P())/QQ;
+  float A3=(a1.E()*Scalar(a1,p3) - p3.E()*a1.P()*a1.P())/QQ;
+
+
+  float cosgamma = A3/a1.P()/sqrt(B3)/sqrt(1 - cosbetaLF()*cosbetaLF());
+  float singamma = -cosgamma*(B3*A1/A3 - 0.5*(B2 - B1 - B3))/T;
+
+  sin2cos2.push_back(2*singamma*cosgamma);
+  sin2cos2.push_back(2*cosgamma*cosgamma - 1);
+  return sin2cos2;
+
+}
+
+// double
+// a1Helper::GetOmegaA1(){
+//         isValid_ = false;
+//         double omega(-999.);
+// TLorentzVector pi1 = SSPion1ZFrame_;
+// TLorentzVector pi2 = SSPion2ZFrame_;
+// TLorentzVector pi3 = OSPionZFrame_;
+// TLorentzVector a = A1ZFrame_;
+// float mtau = 1.777;
+// float cospsi  = CosPsi();
+// float sinpsi  = sqrt(1 - cospsi*cospsi);
+// float sin2psi = 2*sinpsi*cospsi;
+
+// float sin2gamma = Sin2Cos2Gamma(pi1,pi2,pi3).at(0);
+// float cos2gamma = Sin2Cos2Gamma(pi1,pi2,pi3).at(1);
+
+
+// float cosbeta=CosBeta();
+// float sinbeta = sqrt(1  - cosbeta*cosbeta);
+
+  
+// float cstheta=costheta();
+// float sintheta = sqrt(1 - cstheta*cstheta);
+
+// double RR  = mtau*mtau/a.M()/a.M();
+// float U = 0.5*(3*cospsi*cospsi - 1)*(1 - RR);
+// float V = 0.5*(3*cospsi*cospsi - 1)*(1 + RR)*cstheta + 0.5*3*sin2psi*sintheta*sqrt(RR);
+// //std::cout<< " cospsi  "<< cospsi <<" costheta  "<<costheta <<" sin2psi "<<sin2psi <<" sintheta  "<<sintheta  <<" RR  "<< RR <<std::endl;
+
+// float Wa =WA(pi1,pi2,pi3,a.M()*a.M());
+// float Wc =WC(pi1,pi2,pi3,a.M()*a.M());
+// float Wd =WD(pi1,pi2,pi3,a.M()*a.M());
+// float We =WE(pi1,pi2,pi3,a.M()*a.M());
+
+// float fa1 = (2  + RR + 0.5*(3*cosbeta*cosbeta - 1)*U)*Wa/3 - 0.5*sinbeta*sinbeta*cos2gamma*U*Wc + 0.5*sinbeta*sinbeta*sin2gamma*U*Wd + cospsi*cosbeta*We;
+// float ga1 = (cstheta*(RR -2) - 0.5*(3*cosbeta*cosbeta - 1)*V)*Wa/3 + 0.5*sinbeta*sinbeta*cos2gamma*V*Wc - 0.5*sinbeta*sinbeta*sin2gamma*V*Wd -cosbeta*(cstheta*cospsi + sintheta*sinpsi*sqrt(RR))*We;
+// //std::cout<< " U  "<< U <<" V  "<<V <<" Wa "<<Wa <<" Wc  "<<Wc  <<" Wd  "<< Wd <<" We  "<< We  <<" f "<< fa1 <<" g "<< ga1 <<std::endl;
+// omega = ga1/fa1;
+// if(omega > 0 or omega < 0) isValid_ = true;
+// return omega;
+// }
+
+
+
+//------------------
+
+
+
+
 double
 a1Helper::getA1omega(){
   double QQ=_Q*_Q;
   double RR  = mtau*mtau/QQ;
   float U = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 - RR);
-  float V = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 + RR)*costhetaLF() + 0.5*3*2*cospsiLF()* sinpsiLF()*sinthetaLF()*sqrt(RR);
-  
-  float fa1 = (2  + RR + 0.5*(3*cosbeta()*cosbeta()- 1)*U)*WA()/3 - 0.5*sinbeta()*sinbeta()*cos2gamma()*U*WC() + 0.5*sinbeta()*sinbeta()*sin2gamma()*U*WD() + cospsiLF()*cosbeta()*WE();
-  float ga1 = (costhetaLF()*(RR -2) - 0.5*(3*cosbeta()*cosbeta() - 1)*V)*WA()/3 + 0.5*sinbeta()*sinbeta()*cos2gamma()*V*WC() - 0.5*sinbeta()*sinbeta()*sin2gamma()*V*WD() -cosbeta()*(costhetaLF()*cospsiLF() + sinthetaLF()*sinpsiLF()*sqrt(RR))*WE();
+  float V = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 + RR)*costhetaLF() + 3*0.5*cospsiLF()* sinpsiLF()*sinthetaLF()*sqrt(RR);
+
+
+   // _osPionLV   = TauA1andProd.at(1);
+   // _ss1pionLV =TauA1andProd.at(2);
+   // _ss2pionLV =TauA1andProd.at(3);
+  float cb=cosbetaLF();
+  float sb = sqrt(1  - cb*cb);
+
+
+  float sin2gamma = Sin2Cos2Gamma(_osPionLV,_ss1pionLV,_ss2pionLV).at(0);
+  float cos2gamma = Sin2Cos2Gamma(_osPionLV,_ss1pionLV,_ss2pionLV).at(1);
+
+  double B =  0.5*(3*cb*cb- 1);
+  float fa1 = (2  + RR + B*U)*WA()/3 - 0.5*sb*sb*cos2gamma*U*WC() + 0.5*sb*sb*sin2gamma*U*WD() + cospsiLF()*cb*WE();
+
+  float ga1 = (costhetaLF()*(RR -2) - B*V)*WA()/3 + 0.5*sb*sb*cos2gamma*V*WC() - 0.5*sb*sb*sin2gamma*V*WD() -cb*(costhetaLF()*cospsiLF() + sinthetaLF()*sinpsiLF()*sqrt(RR))*WE();
+
+
+  // float fa1 = (2  + RR + B*U)*WA()/3 - 0.5*sinbetaLF()*sinbetaLF()*cos2gamma()*U*WC() + 0.5*sinbetaLF()*sinbetaLF()*sin2gamma()*U*WD() + cospsiLF()*cosbetaLF()*WE();
+
+  // float ga1 = (costhetaLF()*(RR -2) - B*V)*WA()/3 + 0.5*sinbetaLF()*sinbetaLF()*cos2gamma()*V*WC() - 0.5*sinbetaLF()*sinbetaLF()*sin2gamma()*V*WD() -cosbetaLF()*(costhetaLF()*cospsiLF() + sinthetaLF()*sinpsiLF()*sqrt(RR))*WE();
 
   double omega = ga1/fa1;
+  if(omega > 0 or omega < 0) return omega;
+  return -999;
+}
+
+
+// double  // --------- debugged 
+// a1Helper::getA11omega(){
+//   double QQ=_Q*_Q;
+//   double RR  = mtau*mtau/QQ;
+//   float U = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 - RR);
+//   float V = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 + RR)*costhetaLF() + 3*0.5*cospsiLF()* sinpsiLF()*sinthetaLF()*sqrt(RR);
+  
+//   double B =  0.5*(3*cosbetaLF()*cosbetaLF()- 1);
+
+
+//   float fa1 = (2  + RR + B*U)*WA()/3 - 0.5*sinbeta()*sinbeta()*cos2gamma()*U*WC() + 0.5*sinbeta()*sinbeta()*sin2gamma()*U*WD() + cospsiLF()*cosbetaLF()*WE();
+
+//   float ga1 = (costhetaLF()*(RR -2) - B*V)*WA()/3 + 0.5*sinbeta()*sinbeta()*cos2gamma()*V*WC() - 0.5*sinbeta()*sinbeta()*sin2gamma()*V*WD() -cosbetaLF()*(costhetaLF()*cospsiLF() + sinthetaLF()*sinpsiLF()*sqrt(RR))*WE();
+
+//   double omega = ga1/fa1;
+//   if(omega > 0 or omega < 0) return omega;
+//   return -999;
+// }
+
+
+
+double
+a1Helper::getA1omegaIntegratedOverTheta(){
+  double QQ=_Q*_Q;
+  double RR  = mtau*mtau/QQ;
+
+  double U_integrated = (1-RR)*0.5*(3*Integral_squared_cospsi()   - 2 );
+  double V_integrated = 3*0.5*(1+RR)*Integral_squared_cospsi_costheta() + 3*0.5*sqrt(RR)*Integral_sin2psi_sintheta();
+  double Beta = 0.5*(3*cosbetaLF()*cosbetaLF()- 1);
+  float U = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 - RR);
+  float V = 0.5*(3*cospsiLF()*cospsiLF() - 1)*(1 + RR)*costhetaLF() + 0.5*3*2*cospsiLF()* sinpsiLF()*sinthetaLF()*sqrt(RR);
+  
+  double f_beta_gamma = (  (2  + RR) + Beta*U_integrated)*WA()/3
+    - 0.5*sinbetaLF()*sinbetaLF()*cos2gammaLF()*U_integrated*WC() + 0.5*sinbetaLF()*sinbetaLF()*sin2gammaLF()*U_integrated*WD() + Integral_cospsi()*cosbetaLF()*WE();
+
+
+
+  double g_beta_gamma = ( (RR -2) - Beta*V_integrated)*WA()/3 + 0.5*sinbetaLF()*sinbetaLF()*cos2gammaLF()*V_integrated*WC() - 
+    0.5*sinbetaLF()*sinbetaLF()*sin2gammaLF()*V_integrated*WD() -cosbetaLF()*( Integral_cospsi_costheta() + Integral_sinpsi_sintheta()*sqrt(RR))*WE();
+
+
+  double omega = g_beta_gamma/f_beta_gamma;
+
+  //  if(omega > 1)
+{
+   // std::cout<<"*********************  "<<std::endl;
+   // std::cout<<"  f  "<< f_beta_gamma  <<"   g   "<<  g_beta_gamma  <<"   omega   "<< g_beta_gamma/f_beta_gamma <<std::endl;
+
+   // std::cout<< "INtegrals summaary "<< std::endl;
+   // std::cout<<"  RR   "<< RR << std::endl;
+   // std::cout<<" U_integrated  "<< U_integrated<< "   U   " <<  U <<std::endl;
+   // std::cout<<" V_integrated  "<<V_integrated << "  V   "<<  V <<std::endl;
+   // std::cout<<" Integral_squared_cospsi  "<< Integral_squared_cospsi()<< std::endl;
+   // std::cout<<" Integral_squared_cospsi_costheta  "<< Integral_squared_cospsi_costheta()<< std::endl;
+   // std::cout<<" Integral_sin2psi_sintheta  "<< Integral_sin2psi_sintheta()<< std::endl;
+   // std::cout<<" Integral_cospsi  "<< Integral_cospsi()<< std::endl;
+   // std::cout<<" Integral_sinpsi_sintheta  "<< Integral_sinpsi_sintheta()<< std::endl;
+   // std::cout<<" Integral_cospsi_costheta  "<< Integral_cospsi_costheta()<< std::endl;
+  }
+
   if(omega > 0 or omega < 0) 	return omega;
   return -999;
 }
+
+
+
+
+double
+a1Helper::I_squared_cospsi(double limit){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+  return  (limit + 2 * (beta_q*beta_q -1)*log(limit) - pow(beta_q*beta_q-1,2)/limit  )/pow(beta_q,3);
+}
+
+double
+a1Helper::Integral_squared_cospsi(){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return I_squared_cospsi(1+beta_q) -I_squared_cospsi(1-beta_q);
+}
+
+
+
+double
+a1Helper::I_cospsi(double limit){
+
+  double QQ=_Q*_Q;
+  double RR  = mtau*mtau/QQ;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  ( limit + (beta_q*beta_q - 1)*log(limit) )/pow(beta_q,2);
+}
+
+
+double
+a1Helper::Integral_cospsi(){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  I_cospsi(1+beta_q) - I_cospsi(1-beta_q);
+}
+
+
+double
+a1Helper::I_squared_cospsi_costheta(double limit){
+
+  double QQ=_Q*_Q;
+  double RR  = mtau*mtau/QQ;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  (limit*limit*0.5 + limit*(2*beta_q  -3) + ( beta_q*beta_q - 4 *beta_q +3)*log(limit) + pow(beta_q-1,2)/limit)/pow(beta_q,4);
+}
+
+double
+a1Helper::Integral_squared_cospsi_costheta(){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  I_squared_cospsi_costheta(1+beta_q)  - I_squared_cospsi_costheta(1-beta_q);
+}
+
+
+
+double
+a1Helper::I_cospsi_costheta(double limit){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  (limit*limit*0.5 + limit*(beta_q*beta_q  -2) + (1-  beta_q*beta_q )*log(limit))/pow(beta_q,3);
+
+}
+
+
+double
+a1Helper::Integral_cospsi_costheta(){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  I_cospsi_costheta(1+beta_q) - I_cospsi_costheta(1-beta_q);
+
+}
+
+
+double
+a1Helper::I_sinpsi_sintheta(double limit){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  sqrt(1-beta_q*beta_q)*(limit*2 - limit*limit*0.5 +  (  beta_q*beta_q -1  )*log(limit))/pow(beta_q,3);
+}
+
+double
+a1Helper::Integral_sinpsi_sintheta(){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  I_sinpsi_sintheta(1+beta_q) - I_sinpsi_sintheta(1-beta_q);
+}
+
+
+double
+a1Helper::I_sin2psi_sintheta(double limit){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  sqrt(1-beta_q*beta_q)*( -pow(limit,3)/3 + 3*0.5*limit*limit + limit*(beta_q*beta_q - 3) + (1-beta_q*beta_q)*log(limit)    )/pow(beta_q,4);
+}
+
+double
+a1Helper::Integral_sin2psi_sintheta(){
+
+  double QQ=_Q*_Q;
+  double beta_q = (mtau*mtau - QQ)/(mtau*mtau + QQ);
+
+  return  I_sin2psi_sintheta(1+beta_q)  -  I_sin2psi_sintheta(1-beta_q);
+}
+
+
+
+
 TLorentzVector
 a1Helper::sLV(){
   double QQ = _Q*_Q;
